@@ -135,6 +135,32 @@ button:hover {
   clear: both;
   float: none;
 }
+.pop {
+  position: absolute;
+  color: #444;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.7);
+}
+.pop .internal {
+  position: relative;
+  width: 300px;
+  margin: 0 auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  min-height: 300px;
+  margin-top: 50px;
+  padding: 50px;
+}
+.pop .internal .close {
+  padding: 0 5px;
+  position: absolute;
+  right: 0;
+  width: auto;
+  top: 0;
+}
 .stats {
   width: 224px;
   border: 1px solid #ccc;

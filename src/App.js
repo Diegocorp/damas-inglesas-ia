@@ -8,7 +8,7 @@ import Statistics from './Statistics';
 
 import './App.css';
 
-//game board calls row for each item in the board array
+// el tablero de juego llama a la fila para cada elemento de la matriz
 var GameBoard = React.createClass({
   getInitialState: function() {
     return {
@@ -55,15 +55,15 @@ var GameBoard = React.createClass({
     var rowIndex = parseInt(e.target.attributes['data-row'].nodeValue);
     var cellIndex = parseInt(e.target.attributes['data-cell'].nodeValue);
     if (this.state.board[rowIndex][cellIndex].indexOf(this.state.activePlayer) > -1) {
-      //this is triggered if the piece that was clicked on is one of the player's own pieces, it activates it and highlights possible moves
-      this.state.board = this.state.board.map(function(row){return row.map(function(cell){return cell.replace('a', '')});}); //un-activate any previously activated pieces
+      // esto se activa si la pieza en la que se hizo clic es una de las piezas del jugador, la activa y resalta posibles movimientos
+      this.state.board = this.state.board.map(function(row){return row.map(function(cell){return cell.replace('a', '')});}); // desactiva las piezas previamente activadas
       this.state.board[rowIndex][cellIndex] = 'a'+this.state.board[rowIndex][cellIndex];
       this.highlightPossibleMoves(rowIndex, cellIndex);
     }
     else if(this.state.board[rowIndex][cellIndex].indexOf('h') > -1) {
-      //this is activated if the piece clicked is a highlighted square, it moves the active piece to that spot.
+      // esto se activa si la pieza en la que se hace clic es un cuadrado resaltado, mueve la pieza activa a ese lugar.
       this.state.board = this.executeMove(rowIndex, cellIndex, this.state.board, this.state.activePlayer);
-      //is the game over? if not, swap active player
+      // ¿Se acabó el juego? si no, intercambia jugador activo
       this.setState(this.state);
       if (this.winDetection(this.state.board, this.state.activePlayer)) {
         console.log(this.state.activePlayer+ ' won the game!');
@@ -80,14 +80,14 @@ var GameBoard = React.createClass({
   executeMove: function(rowIndex, cellIndex, board, activePlayer) {
     var activePiece;
     for (var i = 0; i < board.length; i++) {
-      //for each row
+      //por cada fila
       for (var j = 0; j < board[i].length; j++) {
         if (board[i][j].indexOf('a')>-1) {
           activePiece = board[i][j];
         }
       }
     }
-    //make any jump deletions
+    // realiza eliminaciones de salto
     var deletions = board[rowIndex][cellIndex].match(/d\d\d/g);
     if (typeof deletions !== undefined && deletions !== null && deletions.length > 0) {
       for (var k = 0; k < deletions.length; k++) {
@@ -95,11 +95,11 @@ var GameBoard = React.createClass({
         board[deleteCoords[0]][deleteCoords[1]] = '-';
       }
     }
-    //remove active piece from it's place
+    // quitar la pieza activa de su lugar
     board = board.map(function(row){return row.map(function(cell){return cell.replace(activePiece, '-')});});
-    //unhighlight
+    // resaltar
     board = board.map(function(row){return row.map(function(cell){return cell.replace('h', '-').replace(/d\d\d/g, '').trim()});}); 
-    //place active piece, now unactive, in it's new place
+    // coloca la pieza activa, ahora inactiva, en su nuevo lugar
     board[rowIndex][cellIndex] = activePiece.replace('a', '');
     if ( (activePlayer == 'b' && rowIndex == 7) || (activePlayer == 'r' && rowIndex == 0) ) {
       board[rowIndex][cellIndex]+= ' k';
@@ -107,13 +107,13 @@ var GameBoard = React.createClass({
     return board;
   },
   highlightPossibleMoves: function(rowIndex, cellIndex) {
-    //unhighlight any previously highlighted cells
+    // quita el resaltado de las celdas previamente resaltadas
     this.state.board = this.state.board.map(function(row){return row.map(function(cell){return cell.replace('h', '-').replace(/d\d\d/g, '').trim()});}); 
 
     var possibleMoves = this.findAllPossibleMoves(rowIndex, cellIndex, this.state.board, this.state.activePlayer);
 
-    //actually highlight the possible moves on the board
-    //the 'highlightTag' inserts the information in to a cell that specifies 
+    // resalta los posibles movimientos en el tablero
+    // el 'highlightTag' inserta la información en una celda que especifica
     for (var j = 0; j < possibleMoves.length; j++) {
       var buildHighlightTag = 'h ';
       for (var k = 0; k < possibleMoves[j].wouldDelete.length; k++) {
@@ -136,16 +136,16 @@ var GameBoard = React.createClass({
       directionOfMotion.push(-1);
     }
 
-    //if it's a king, we allow it to both go forward and backward, otherwise it can only move in it's color's normal direction
-    //the move loop below runs through every direction of motion allowed, so if there are two it will hit them both
+    // si es un rey, le permitimos ir hacia adelante y hacia atrás, de lo contrario, solo puede moverse en la dirección normal de su color
+    // el bucle de movimiento a continuación corre a través de todas las direcciones de movimiento permitidas, por lo que si hay dos, las golpeará
     if (isKing) {
       directionOfMotion.push(directionOfMotion[0]*-1);
     }
 
-    //normal move detection happens here (ie. non jumps)
-    //for each direction of motion allowed to the piece it loops (forward for normal pieces, both for kings)
-    //inside of that loop, it checks in that direction of motion for both left and right (checkers move diagonally)
-    //any moves found are pushed in to the possible moves array
+    // la detección de movimiento normal ocurre aquí (es decir, sin saltos)
+    // para cada dirección de movimiento permitida a la pieza gira (hacia adelante para piezas normales, ambas para reyes)
+    // dentro de ese bucle, comprueba en esa dirección de movimiento tanto para la izquierda como para la derecha (las fichas se mueven en diagonal)
+    // cualquier movimiento encontrado se inserta en la matriz de movimientos posibles
     for (var j = 0; j < directionOfMotion.length; j++) {
       for (var i = 0; i < leftOrRight.length; i++) {      
         if (
@@ -160,27 +160,27 @@ var GameBoard = React.createClass({
       }
     }
 
-    //get jumps
+    // obtener saltos
     var jumps = this.findAllJumps(rowIndex, cellIndex, board, directionOfMotion[0], [], [], isKing, activePlayer);
     
-    //loop and push all jumps in to possibleMoves
+    // bucle y empuje todos los saltos a possibles movimientos
     for (var i = 0; i < jumps.length; i++) {
       possibleMoves.push(jumps[i]);
     }
     return possibleMoves;
   },
   findAllJumps: function(sourceRowIndex, sourceCellIndex, board, directionOfMotion, possibleJumps, wouldDelete, isKing, activePlayer) {
-    //jump moves
+    // movimientos de salto
     var thisIterationDidSomething = false;
     var directions = [directionOfMotion];
     var leftOrRight = [1, -1];
     if (isKing) {
-      //if it's a king, we'll also look at moving backwards
+      // si es un rey, también veremos cómo retroceder
       directions.push(directions[0]*-1);
     }
-    //here we detect any jump possible moves
-    //for each direction available to the piece (based on if it's a king or not) 
-    //and for each diag (left or right) we look 2 diag spaces away to see if it's open and if we'd jump an enemy to get there.
+    // aquí detectamos posibles movimientos de salto
+    // para cada dirección disponible para la pieza (en función de si es un rey o no)
+    // y para cada diag (izquierda o derecha) buscamos 2 espacios de diag para ver si está abierto y si saltaríamos a un enemigo para llegar allí.
     for (var k = 0; k < directions.length; k++) {
       for (var l = 0; l < leftOrRight.length; l++) {
         leftOrRight[l]
@@ -193,7 +193,7 @@ var GameBoard = React.createClass({
           board[sourceRowIndex+(directions[k]*2)][sourceCellIndex+(leftOrRight[l]*2)] == '-'
         ){
           if (possibleJumps.map(function(move){return String(move.targetRow)+String(move.targetCell);}).indexOf(String(sourceRowIndex+(directions[k]*2))+String(sourceCellIndex+(leftOrRight[l]*2))) < 0) {
-            //this eventual jump target did not already exist in the list
+            // este eventual objetivo de salto no existía ya en la lista
             var tempJumpObject = {
               targetRow: sourceRowIndex+(directions[k]*2),
               targetCell: sourceCellIndex+(leftOrRight[l]*2),
@@ -214,7 +214,7 @@ var GameBoard = React.createClass({
       }
     }
     
-    //if a jump was found, thisIterationDidSomething is set to true and this function calls itself again from that source point, this is how we recurse to find multi jumps
+    // si se encontró un salto, thisIterationDidSomething se establece en verdadero y esta función se llama a sí misma nuevamente desde ese punto de origen, así es como recurrimos para encontrar múltiples saltos
     if(thisIterationDidSomething) {
       for (var i = 0; i < possibleJumps.length; i++) {
         var coords = [possibleJumps[i].targetRow, possibleJumps[i].targetCell];
@@ -261,13 +261,13 @@ var GameBoard = React.createClass({
         return output;
   },
   ai: function() {
-    //prep a branching future prediction
+    // preparar una predicción futura ramificada
     this.count = 0;
     console.time('decisionTree');
     var decisionTree = this.aiBranch(this.state.board, this.state.activePlayer, 1);
     console.timeEnd('decisionTree');
     console.log(this.count);
-    //execute the most favorable move
+    // ejecutar el movimiento más favorable
     if (decisionTree.length > 0) {
       console.log(decisionTree[0]);
       setTimeout(function() {
@@ -331,12 +331,12 @@ var GameBoard = React.createClass({
               activePlayer: activePlayer,
               depth: depth,
             }
-            //does that move win the game?
+            // ¿Ese movimiento gana el juego?
             buildingObject.terminal = this.winDetection(buildingObject.board, activePlayer);            
 
             if (buildingObject.terminal) {
-              //console.log('a terminal move was found');
-              //if terminal, score is easy, just depends on who won
+              //console.log('se encontró un movimiento de terminal ');
+              // si es terminal, la puntuación es fácil, solo depende de quién ganó
               if (activePlayer == this.state.activePlayer) {
                 buildingObject.score = 100-depth;
               }
@@ -350,7 +350,7 @@ var GameBoard = React.createClass({
             }
             else {  
               buildingObject.children = this.aiBranch(buildingObject.board, (activePlayer == 'r' ? 'b' : 'r'), depth+1);
-              //if not terminal, we want the best score from this route (or worst depending on who won)             
+              // si no es terminal, queremos la mejor puntuación de esta ruta (o la peor dependiendo de quién ganó)      
               var scoreHolder = [];
 
                   for (var l = 0; l < buildingObject.children.length; l++) {
@@ -388,7 +388,7 @@ var GameBoard = React.createClass({
                 }
               }
               if ((JSON.stringify(hypotheticalBoard).match(/k/g) || []).length < (JSON.stringify(buildingObject.board).match(/k/g) || []).length) {
-                //new king made after this move
+                // nuevo rey hecho después de este movimiento
                 buildingObject.score+=(15-depth);
               }
             }
@@ -402,7 +402,7 @@ var GameBoard = React.createClass({
                 }
               }             
               if ((JSON.stringify(hypotheticalBoard).match(/k/g) || []).length < (JSON.stringify(buildingObject.board).match(/k/g) || []).length) {
-                //new king made after this move
+                // nuevo rey hecho después de este movimiento
                 buildingObject.score-=(15-depth);
               }
             }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import Cell from './Cell';
 
-//row is passed a single row from the board, returns a container and a Cell for each item in the array
+// fila se pasa una sola fila del tablero, devuelve un contenedor y una celda para cada elemento de la matriz
 var Row = React.createClass({
   render: function() {
     return (

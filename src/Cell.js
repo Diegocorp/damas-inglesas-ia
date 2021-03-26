@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-//cell is passed a single item in a row, and renders it out, it also calls it's grand-parent's swapper function on click 
+// a la celda se le pasa un solo elemento en una fila y lo muestra, también llama a la función de intercambio de sus abuelos al hacer clic
 var Cell = React.createClass({
   render: function() {
     return(
